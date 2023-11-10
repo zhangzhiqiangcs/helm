@@ -110,12 +110,6 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithTagName(tagname string) Option {
-	return func(opts *options) {
-		opts.version = tagname
-	}
-}
-
 func WithRegistryClient(client *registry.Client) Option {
 	return func(opts *options) {
 		opts.registryClient = client

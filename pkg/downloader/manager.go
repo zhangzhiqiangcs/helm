@@ -25,7 +25,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 
@@ -343,13 +342,8 @@ func (m *Manager) downloadAll(deps []*chart.Dependency) error {
 
 		version := ""
 		if registry.IsOCI(churl) {
-			churl, version, err = parseOCIRef(churl)
-			if err != nil {
-				return errors.Wrapf(err, "could not parse OCI reference")
-			}
 			dl.Options = append(dl.Options,
-				getter.WithRegistryClient(m.RegistryClient),
-				getter.WithTagName(version))
+				getter.WithRegistryClient(m.RegistryClient))
 		}
 
 		if _, _, err = dl.DownloadTo(churl, version, tmpPath); err != nil {
@@ -371,18 +365,6 @@ func (m *Manager) downloadAll(deps []*chart.Dependency) error {
 		return saveError
 	}
 	return nil
-}
-
-func parseOCIRef(chartRef string) (string, string, error) {
-	refTagRegexp := regexp.MustCompile(`^(oci://[^:]+(:[0-9]{1,5})?[^:]+):(.*)$`)
-	caps := refTagRegexp.FindStringSubmatch(chartRef)
-	if len(caps) != 4 {
-		return "", "", errors.Errorf("improperly formatted oci chart reference: %s", chartRef)
-	}
-	chartRef = caps[1]
-	tag := caps[3]
-
-	return chartRef, tag, nil
 }
 
 // safeMoveDep moves all dependencies in the source and moves them into dest.
